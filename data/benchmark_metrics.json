@@ -1,28 +1,28 @@
 {
   "Persistence Baseline": {
-    "mae": 0.050465,
-    "rmse": 0.206161
+    "mae": 1.541662,
+    "rmse": 3.281229
   },
   "HistGradientBoosting": {
-    "mae": 0.048642,
-    "rmse": 0.194889
+    "mae": 1.461644,
+    "rmse": 3.022208
   },
   "LSTM": {
-    "mae": 0.045589,
-    "rmse": 0.187497
+    "mae": 1.394165,
+    "rmse": 3.002746
   },
   "improvement_pct": {
     "HistGradientBoosting": {
-      "mae": 3.6136,
-      "rmse": 5.4674
+      "mae": 5.1904,
+      "rmse": 7.894
     },
     "LSTM": {
-      "mae": 9.6626,
-      "rmse": 9.0529
+      "mae": 9.5674,
+      "rmse": 8.4872
     }
   },
   "horizon_minutes": 15,
-  "sensors_trained": 35,
+  "sensors_trained": 325,
   "features": [
     "speed",
     "tod_sin",
@@ -31,5 +31,6 @@
     "dow_cos"
   ],
   "split": "chronological_80_20",
-  "validation_samples": 60725
+  "unit": "mph",
+  "validation_samples": 282100
 }

@@ -86,19 +86,19 @@ Thumbs.db
 *.swo
 
 # Datasets & Models
-# Keep essential sample/config/metadata files tracked, ignore heavy raw binaries
+# Keep lightweight graph topologies and metric summaries tracked
 data/*
 !data/distances_bay_2017.csv
 !data/graph_sensor_locations_bay.csv
 !data/benchmark_metrics.json
-!data/lstm_dataset.csv
-!data/lstm_dataset.npz
-!data/predictions.npz
 
-# Explicitly exclude raw heavy HDF5 and large CSVs
+# Ignore heavy raw dataset binaries and generated numpy datasets (>4MB / >70MB)
 data/pems-bay.h5
 data/PEMS-BAY.h5
 data/cleaned_pems_bay.csv
+data/lstm_dataset.csv
+data/lstm_dataset.npz
+data/predictions.npz
 
 # Models: only track final pth weights, exclude raw checkpoints and temp dirs
 models/*

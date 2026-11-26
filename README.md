@@ -25,10 +25,18 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Data Source: PEMS-BAY
+### 2. Data Sources & Setup
 
-* Dataset used: [PEMS-BAY.h5](https://zenodo.org/record/4263971)
-* Data format: 5-min interval average speeds across 325 freeway sensors (May-July 2017)
+To keep the repository lightweight and under GitHub file size limits, large data files (`pems-bay.h5`, `lstm_dataset.npz`, `predictions.npz`) are excluded from git tracking.
+
+* **Primary Dataset**: [PEMS-BAY.h5 on Zenodo](https://zenodo.org/records/4263971) (or direct mirror from the [DCRNN repository](https://github.com/liyaguang/DCRNN)).
+  - Contains 5-minute interval average speeds across 325 freeway sensors in the California Bay Area (May–July 2017, shape: `52116 × 325`).
+  - Download and place the file at: `data/pems-bay.h5`.
+* **Sensor Graph & Distances**:
+  - `data/graph_sensor_locations_bay.csv`: Sensor IDs and GPS coordinates (included in repo).
+  - `data/distances_bay_2017.csv`: Pairwise directed road network distances in meters (included in repo).
+* **Generating Training Data**:
+  - Run `python src/data/make_windows.py` to generate `data/lstm_dataset.npz` locally.
 
 ### 3. Data Inspection
 
