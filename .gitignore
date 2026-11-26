@@ -1,52 +1,105 @@
-# Python bytecode
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-*.pkl
-*.npy
-*.npz
+*$py.class
+*.so
 
-# Jupyter/IPython
-*.ipynb_checkpoints/
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Virtual environment
+# PyTorch Lightning / Model checkpoints
+lightning_logs/
+*.ckpt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter / IPython
+.ipynb_checkpoints
+
+# Virtual environments
 venv/
 .venv/
+env/
+ENV/
+env.bak/
+venv.bak/
 
-# Logs and reports
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Outputs & temporary artifacts
+outputs/
 *.log
 *.out
 *.err
 
-# Environment variables
-.env
-*.env
+# Frontend dependencies & build outputs
+frontend/node_modules/
+frontend/dist/
+frontend/.tmp/
+node_modules/
 
-# Datasets and generated files
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Datasets & Models
+# Keep essential sample/config/metadata files tracked, ignore heavy raw binaries
 data/*
+!data/distances_bay_2017.csv
+!data/graph_sensor_locations_bay.csv
+!data/benchmark_metrics.json
 !data/lstm_dataset.csv
 !data/lstm_dataset.npz
 !data/predictions.npz
 
-# Explicitly ignore large files (redundant but clear)
-data/cleaned_pems_bay.csv
+# Explicitly exclude raw heavy HDF5 and large CSVs
 data/pems-bay.h5
+data/PEMS-BAY.h5
+data/cleaned_pems_bay.csv
 
-
-
-
-# Ignore models/ except trained model
+# Models: only track final pth weights, exclude raw checkpoints and temp dirs
 models/*
 !models/lstm_eta_model.pth
-# Ignore outputs/ except plots
-outputs/
-
-# IDE/editor folders
-.vscode/
-.idea/
-.DS_Store
-
-# OS-specific
-Thumbs.db
-ehthumbs.db

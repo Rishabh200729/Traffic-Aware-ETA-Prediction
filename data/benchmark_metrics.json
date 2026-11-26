@@ -1,0 +1,35 @@
+{
+  "Persistence Baseline": {
+    "mae": 0.050465,
+    "rmse": 0.206161
+  },
+  "HistGradientBoosting": {
+    "mae": 0.048642,
+    "rmse": 0.194889
+  },
+  "LSTM": {
+    "mae": 0.045589,
+    "rmse": 0.187497
+  },
+  "improvement_pct": {
+    "HistGradientBoosting": {
+      "mae": 3.6136,
+      "rmse": 5.4674
+    },
+    "LSTM": {
+      "mae": 9.6626,
+      "rmse": 9.0529
+    }
+  },
+  "horizon_minutes": 15,
+  "sensors_trained": 35,
+  "features": [
+    "speed",
+    "tod_sin",
+    "tod_cos",
+    "dow_sin",
+    "dow_cos"
+  ],
+  "split": "chronological_80_20",
+  "validation_samples": 60725
+}

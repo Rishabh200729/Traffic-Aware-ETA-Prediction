@@ -1,25 +1,28 @@
 import sys
 from pathlib import Path
 
+import numpy as np
+import torch
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import ModelCheckpoint
+from torch.utils.data import DataLoader, Dataset
+
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-import os
-import math
-import wandb
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from torch.utils.data import Dataset, DataLoader, random_split
-from pytorch_lightning import Trainer
 from model.lstm_model import LSTMETAModel
 
-# ==== Dataset ====
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_PATH = PROJECT_ROOT / "data" / "lstm_dataset.npz"
+MODEL_DIR = PROJECT_ROOT / "models"
+BATCH_SIZE = 512
+EPOCHS = 18
+
+
 class ETADataset(Dataset):
-    def __init__(self, npz_path):
-        data = np.load(npz_path)
-        self.X = torch.tensor(data["X"], dtype=torch.float32).unsqueeze(-1)
-        self.y = torch.tensor(data["y"], dtype=torch.float32)
+    def __init__(self, x_values, y_values):
+        self.X = torch.from_numpy(np.asarray(x_values, dtype=np.float32))
+        self.y = torch.from_numpy(np.asarray(y_values, dtype=np.float32)).reshape(-1, 1)
 
     def __len__(self):
         return len(self.X)
@@ -27,73 +30,73 @@ class ETADataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
 
-# ==== Training Pipeline ====
-if __name__ == "__main__":
-    wandb.init(
-        project="Traffic-Aware-ETA-Prediction-Using-Temporal-Deep-Learning",
-        name="lstm-final",
-        entity="nainikas-california-state-university-northridge"
+
+def main() -> None:
+    torch.manual_seed(42)
+    with np.load(DATA_PATH) as data:
+        train_ds = ETADataset(data["X_train"], data["y_train"])
+        val_ds = ETADataset(data["X_val"], data["y_val"])
+        speed_mean = float(data["speed_mean"])
+        speed_std = float(data["speed_std"])
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=BATCH_SIZE,
+        shuffle=True,
+        num_workers=0,
     )
-
-    config = {
-        "input_steps": 12,
-        "hidden_dim": 64,
-        "num_layers": 2,
-        "dropout": 0.3,
-        "batch_size": 64,
-        "epochs": 10,
-        "lr": 0.001
-    }
-    wandb.config.update(config)
-
-    dataset = ETADataset("data/lstm_dataset.npz")
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_ds, val_ds = random_split(dataset, [train_size, val_size])
-
-    train_loader = DataLoader(train_ds, batch_size=config["batch_size"], shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_ds, batch_size=config["batch_size"], num_workers=0)
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+        num_workers=0,
+    )
 
     model = LSTMETAModel(
-        input_dim=1,
-        hidden_dim=config["hidden_dim"],
-        num_layers=config["num_layers"],
-        dropout=config["dropout"],
-        lr=config["lr"]
+        input_dim=5,
+        hidden_dim=64,
+        num_layers=2,
+        dropout=0.1,
+        lr=1e-3,
+        speed_mean=speed_mean,
+        speed_std=speed_std,
     )
 
-    wandb.watch(model, log="all")
-
-    trainer = Trainer(max_epochs=config["epochs"])
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    checkpoint = ModelCheckpoint(
+        dirpath=MODEL_DIR,
+        filename="lstm_eta_model_best",
+        monitor="val_loss",
+        mode="min",
+        save_top_k=1,
+        save_weights_only=True,
+    )
+    trainer = Trainer(
+        max_epochs=EPOCHS,
+        gradient_clip_val=1.0,
+        accelerator="gpu" if torch.cuda.is_available() else "cpu",
+        devices=1,
+        callbacks=[checkpoint],
+        logger=False,
+        enable_progress_bar=True,
+    )
     trainer.fit(model, train_loader, val_loader)
 
-    os.makedirs("models", exist_ok=True)
-    torch.save(model.state_dict(), "models/lstm_eta_model.pth")
+    if not checkpoint.best_model_path:
+        raise RuntimeError("Training did not produce a best validation checkpoint")
 
-    # === Evaluate ===
-    all_preds, all_targets = [], []
-    model.eval()
-    with torch.no_grad():
-        for x, y in val_loader:
-            preds = model(x).squeeze()
-            all_preds.extend(preds.numpy())
-            all_targets.extend(y.numpy())
+    best_checkpoint = torch.load(
+        checkpoint.best_model_path,
+        map_location="cpu",
+        weights_only=False,
+    )
+    model.load_state_dict(best_checkpoint["state_dict"])
+    model_path = MODEL_DIR / "lstm_eta_model.pth"
+    torch.save(model.state_dict(), model_path)
+    print(f"Best checkpoint: {checkpoint.best_model_path}")
+    print(f"Best validation loss: {checkpoint.best_model_score.item():.6f}")
+    print(f"Saved best model weights to {model_path}")
 
-    mae = mean_absolute_error(all_targets, all_preds)
-    rmse = math.sqrt(mean_squared_error(all_targets, all_preds))
 
-    wandb.log({"MAE": mae, "RMSE": rmse})
-
-    os.makedirs("outputs", exist_ok=True)
-    plt.figure(figsize=(10, 5))
-    plt.plot(all_targets[:200], label="True ETA")
-    plt.plot(all_preds[:200], label="Predicted ETA", linestyle="--")
-    plt.legend()
-    plt.title("ETA Prediction vs Ground Truth (First 200 Samples)")
-    plt.tight_layout()
-    plot_path = "outputs/eta_vs_truth.png"
-    plt.savefig(plot_path)
-
-    wandb.log({"Prediction Plot": wandb.Image(plot_path)})
-
-    print(" W&B tracking complete. See your run at:", wandb.run.url)
+if __name__ == "__main__":
+    main()

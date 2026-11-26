@@ -5,6 +5,7 @@ scikit-learn
 torch
 pytorch-lightning
 fastapi
+httpx2
 uvicorn
 tqdm
 geopy
