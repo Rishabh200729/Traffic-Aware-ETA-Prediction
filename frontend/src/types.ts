@@ -53,3 +53,18 @@ export interface BenchmarkMetrics {
   unit?: string
   validation_samples: number
 }
+
+export type MapLayerMode = 'predicted' | 'current' | 'delta'
+
+export type BasemapTheme = 'light' | 'dark'
+
+export type PlaybackSpeed = 1 | 2 | 4
+
+export interface RoutePreset {
+  id: string
+  label: string
+  timeLabel: string
+  step: number
+  originId: string
+  destinationId: string
+}

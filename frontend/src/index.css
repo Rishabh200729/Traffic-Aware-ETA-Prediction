@@ -1,6 +1,6 @@
 :root {
   --ink: #16252f;
-  --muted: #738088;
+  --muted: #55636c;
   --line: #dce2e1;
   --green: #087e70;
   --red: #c74740;
@@ -32,7 +32,7 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: var(--body);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -56,11 +56,19 @@ a:focus-visible {
   font-family: var(--body);
 }
 
+.leaflet-interactive {
+  cursor: pointer;
+}
+
+.leaflet-interactive:focus {
+  outline: none;
+}
+
 .leaflet-tooltip {
-  padding: 8px 9px;
+  padding: 8px 10px;
   border: 1px solid #d7dedd;
-  border-radius: 0;
-  box-shadow: 0 3px 12px rgb(26 39 48 / 12%);
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgb(26 39 48 / 14%);
 }
 
 .leaflet-tooltip-top::before {
